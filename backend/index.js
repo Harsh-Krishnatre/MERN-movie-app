@@ -20,7 +20,10 @@ const app = express();
 
 // middlewares
 app.use(cors({
-  origin: "http://localhost:5173", // Vite default port
+  origin: [
+    "http://localhost:5173", // Vite default port for development
+    process.env.FRONTEND_URL || "https://mern-movies-frontend.onrender.com" // Production frontend URL
+  ],
   credentials: true
 }));
 app.use(express.json());

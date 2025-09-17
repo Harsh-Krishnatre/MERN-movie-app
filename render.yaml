@@ -1,0 +1,31 @@
+# Render Configuration File
+# This file defines how to deploy your MERN Movies App on Render
+
+services:
+  # Backend Service
+  - type: web
+    name: mern-movies-backend
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false  # Set this in Render dashboard
+      - key: JWT_SECRET
+        sync: false  # Set this in Render dashboard
+      - key: MONGO_DB_NAME
+        value: movies-app
+      - key: FRONTEND_URL
+        sync: false  # Set this after frontend is deployed
+
+  # Frontend Service
+  - type: static
+    name: mern-movies-frontend
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false  # Set this to your backend URL after deployment

@@ -1,4 +1,9 @@
-export const BASE_URL = "http://localhost:3001";
+// Dynamic BASE_URL based on environment
+export const BASE_URL = import.meta.env.VITE_API_URL || 
+  (import.meta.env.MODE === 'production' 
+    ? 'https://mern-movies-backend.onrender.com' 
+    : 'http://localhost:3001');
+
 export const USERS_URL = "/api/v1/users";
 export const GENRE_URL = "/api/v1/genre";
 export const MOVIE_URL = "/api/v1/movies";

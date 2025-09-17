@@ -9,7 +9,10 @@
     "backend": "set PORT=3001&& nodemon backend/index.js",
     "frontend": "cd frontend && npm run dev",
     "data:import": "node backend/seeder.js",
-    "data:destroy": "node backend/seeder.js --destroy"
+    "data:destroy": "node backend/seeder.js --destroy",
+    "build": "cd frontend && npm run build",
+    "start": "node backend/index.js",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\""
   },
   "keywords": [],
   "author": "",

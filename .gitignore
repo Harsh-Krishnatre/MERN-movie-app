@@ -2,3 +2,5 @@
 backend/.env
 backend/uploads/*
 !backend/uploads/.gitkeep
+DEPLOYMENT_CHECKLIST.md
+render-deployment-guide.md
