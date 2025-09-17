@@ -22,7 +22,7 @@ services:
         sync: false
 
   # Frontend Service
-  - type: static_site
+  - type: static
     name: mern-movies-frontend
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: frontend/dist
