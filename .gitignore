@@ -4,3 +4,5 @@ backend/uploads/*
 !backend/uploads/.gitkeep
 DEPLOYMENT_CHECKLIST.md
 render-deployment-guide.md
+RENDER_WHITE_SCREEN_FIX.md
+MONGODB_ATLAS_TROUBLESHOOTING.md

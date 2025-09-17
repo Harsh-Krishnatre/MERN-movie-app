@@ -41,4 +41,22 @@ app.use("/api/v1/upload", uploadRoutes);
 const __dirname = path.resolve();
 app.use("/uploads", express.static(path.join(__dirname + "/uploads")));
 
+// Health check endpoint
+app.get("/", (req, res) => {
+  res.json({ 
+    message: "MERN Movies API is running!",
+    status: "success",
+    timestamp: new Date().toISOString()
+  });
+});
+
+// API health check
+app.get("/api/health", (req, res) => {
+  res.json({ 
+    message: "API is healthy",
+    status: "success",
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
