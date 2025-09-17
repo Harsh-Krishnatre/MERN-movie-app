@@ -13,19 +13,19 @@ services:
       - key: NODE_ENV
         value: production
       - key: MONGO_URI
-        sync: false  # Set this in Render dashboard
+        sync: false
       - key: JWT_SECRET
-        sync: false  # Set this in Render dashboard
+        sync: false
       - key: MONGO_DB_NAME
         value: movies-app
       - key: FRONTEND_URL
-        sync: false  # Set this after frontend is deployed
+        sync: false
 
   # Frontend Service
-  - type: static
+  - type: static_site
     name: mern-movies-frontend
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: frontend/dist
     envVars:
       - key: VITE_API_URL
-        sync: false  # Set this to your backend URL after deployment
+        sync: false
