@@ -1,171 +1,141 @@
 import Movie from "../models/Movie.js";
+import asyncHandler from "../middlewares/asyncHandler.js";
 
-const createMovie = async (req, res) => {
-  try {
-    const newMovie = new Movie(req.body);
-    const savedMovie = await newMovie.save();
-    res.json(savedMovie);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+const createMovie = asyncHandler(async (req, res) => {
+  const newMovie = new Movie(req.body);
+  const savedMovie = await newMovie.save();
+  res.json(savedMovie);
+});
+
+const getAllMovies = asyncHandler(async (req, res) => {
+  const movies = await Movie.find().populate('genre', 'name');
+  res.json(movies);
+});
+
+const getSpecificMovie = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const specificMovie = await Movie.findById(id).populate('genre', 'name');
+  if (!specificMovie) {
+    res.status(404);
+    throw new Error("Movie not found");
   }
-};
 
-const getAllMovies = async (req, res) => {
-  try {
-    const movies = await Movie.find();
-    res.json(movies);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  res.json(specificMovie);
+});
+
+const updateMovie = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const updatedMovie = await Movie.findByIdAndUpdate(id, req.body, {
+    new: true,
+  }).populate('genre', 'name');
+
+  if (!updatedMovie) {
+    res.status(404);
+    throw new Error("Movie not found");
   }
-};
 
-const getSpecificMovie = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const specificMovie = await Movie.findById(id);
-    if (!specificMovie) {
-      return res.status(404).json({ message: "Movie not found" });
-    }
+  res.json(updatedMovie);
+});
 
-    res.json(specificMovie);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+const movieReview = asyncHandler(async (req, res) => {
+  const { rating, comment } = req.body;
+  const movie = await Movie.findById(req.params.id);
 
-const updateMovie = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updatedMovie = await Movie.findByIdAndUpdate(id, req.body, {
-      new: true,
-    });
-
-    if (!updatedMovie) {
-      return res.status(404).json({ message: "Movie not found" });
-    }
-
-    res.json(updatedMovie);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-const movieReview = async (req, res) => {
-  try {
-    const { rating, comment } = req.body;
-    const movie = await Movie.findById(req.params.id);
-
-    if (movie) {
-      const alreadyReviewed = movie.reviews.find(
-        (r) => r.user.toString() === req.user._id.toString()
-      );
-
-      if (alreadyReviewed) {
-        res.status(400);
-        throw new Error("Movie already reviewed");
-      }
-
-      const review = {
-        name: req.user.username,
-        rating: Number(rating),
-        comment,
-        user: req.user._id,
-      };
-
-      movie.reviews.push(review);
-      movie.numReviews = movie.reviews.length;
-      movie.rating =
-        movie.reviews.reduce((acc, item) => item.rating + acc, 0) /
-        movie.reviews.length;
-
-      await movie.save();
-      res.status(201).json({ message: "Review Added" });
-    } else {
-      res.status(404);
-      throw new Error("Movie not found");
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(400).json(error.message);
-  }
-};
-
-const deleteMovie = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const deleteMovie = await Movie.findByIdAndDelete(id);
-
-    if (!deleteMovie) {
-      return res.status(404).json({ message: "Movie not found" });
-    }
-
-    res.json({ message: "Movie Deleted Successfully" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-const deleteComment = async (req, res) => {
-  try {
-    const { movieId, reviewId } = req.body;
-    const movie = await Movie.findById(movieId);
-
-    if (!movie) {
-      return res.status(404).json({ message: "Movie not found" });
-    }
-
-    const reviewIndex = movie.reviews.findIndex(
-      (r) => r._id.toString() === reviewId
+  if (movie) {
+    const alreadyReviewed = movie.reviews.find(
+      (r) => r.user.toString() === req.user._id.toString()
     );
 
-    if (reviewIndex === -1) {
-      return res.status(404).json({ message: "Comment not found" });
+    if (alreadyReviewed) {
+      res.status(400);
+      throw new Error("Movie already reviewed");
     }
 
-    movie.reviews.splice(reviewIndex, 1);
+    const review = {
+      name: req.user.username,
+      rating: Number(rating),
+      comment,
+      user: req.user._id,
+    };
+
+    movie.reviews.push(review);
     movie.numReviews = movie.reviews.length;
     movie.rating =
-      movie.reviews.length > 0
-        ? movie.reviews.reduce((acc, item) => item.rating + acc, 0) /
-          movie.reviews.length
-        : 0;
+      movie.reviews.reduce((acc, item) => item.rating + acc, 0) /
+      movie.reviews.length;
 
     await movie.save();
-    res.json({ message: "Comment Deleted Successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
+    res.status(201).json({ message: "Review Added" });
+  } else {
+    res.status(404);
+    throw new Error("Movie not found");
   }
-};
+});
 
-const getNewMovies = async (req, res) => {
-  try {
-    const newMovies = await Movie.find().sort({ createdAt: -1 }).limit(10);
-    res.json(newMovies);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+const deleteMovie = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const deleteMovie = await Movie.findByIdAndDelete(id);
 
-const getTopMovies = async (req, res) => {
-  try {
-    const topRatedMovies = await Movie.find()
-      .sort({ numReviews: -1 })
-      .limit(10);
-    res.json(topRatedMovies);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  if (!deleteMovie) {
+    res.status(404);
+    throw new Error("Movie not found");
   }
-};
 
-const getRandomMovies = async (req, res) => {
-  try {
-    const randomMovies = await Movie.aggregate([{ $sample: { size: 10 } }]);
-    res.json(randomMovies);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  res.json({ message: "Movie Deleted Successfully" });
+});
+
+const deleteComment = asyncHandler(async (req, res) => {
+  const { movieId, reviewId } = req.body;
+  const movie = await Movie.findById(movieId);
+
+  if (!movie) {
+    res.status(404);
+    throw new Error("Movie not found");
   }
-};
+
+  const reviewIndex = movie.reviews.findIndex(
+    (r) => r._id.toString() === reviewId
+  );
+
+  if (reviewIndex === -1) {
+    res.status(404);
+    throw new Error("Comment not found");
+  }
+
+  movie.reviews.splice(reviewIndex, 1);
+  movie.numReviews = movie.reviews.length;
+  movie.rating =
+    movie.reviews.length > 0
+      ? movie.reviews.reduce((acc, item) => item.rating + acc, 0) /
+        movie.reviews.length
+      : 0;
+
+  await movie.save();
+  res.json({ message: "Comment Deleted Successfully" });
+});
+
+const getNewMovies = asyncHandler(async (req, res) => {
+  const newMovies = await Movie.find().sort({ createdAt: -1 }).limit(10).populate('genre', 'name');
+  res.json(newMovies);
+});
+
+const getTopMovies = asyncHandler(async (req, res) => {
+  const topRatedMovies = await Movie.find()
+    .sort({ numReviews: -1 })
+    .limit(10)
+    .populate('genre', 'name');
+  res.json(topRatedMovies);
+});
+
+const getRandomMovies = asyncHandler(async (req, res) => {
+  const randomMovies = await Movie.aggregate([
+    { $sample: { size: 10 } },
+    { $lookup: { from: 'genres', localField: 'genre', foreignField: '_id', as: 'genre' } },
+    { $unwind: '$genre' },
+    { $project: { 'genre._id': 1, 'genre.name': 1, name: 1, image: 1, year: 1, detail: 1, cast: 1, reviews: 1, numReviews: 1, rating: 1, createdAt: 1 } }
+  ]);
+  res.json(randomMovies);
+});
 
 export {
   createMovie,

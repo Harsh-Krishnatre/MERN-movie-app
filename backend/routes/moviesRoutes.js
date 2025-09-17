@@ -19,6 +19,7 @@ import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
 import checkId from "../middlewares/checkId.js";
 
 // Public Routes
+router.get("/", getAllMovies);
 router.get("/all-movies", getAllMovies);
 router.get("/specific-movie/:id", getSpecificMovie);
 router.get("/new-movies", getNewMovies);

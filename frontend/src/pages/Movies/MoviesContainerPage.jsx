@@ -17,21 +17,39 @@ const MoviesContainerPage = () => {
   const [selectedGenre, setSelectedGenre] = useState(null);
 
   const handleGenreClick = (genreId) => {
-    setSelectedGenre(genreId);
+    setSelectedGenre(selectedGenre === genreId ? null : genreId);
   };
 
   const filteredMovies = data?.filter(
-    (movie) => selectedGenre === null || movie.genre === selectedGenre
+    (movie) => {
+      if (selectedGenre === null) return true;
+      // Handle both populated and unpopulated genre fields
+      const movieGenreId = movie.genre?._id || movie.genre;
+      return movieGenreId === selectedGenre;
+    }
   );
 
+  // Debug logging
+  console.log("Selected genre:", selectedGenre);
+  console.log("Movies data:", data);
+  console.log("Filtered movies:", filteredMovies);
+
   return (
-    <div className="flex flex-col lg:flex-row lg:justify-between items-center">
-      <nav className=" ml-[4rem] flex flex-row xl:flex-col lg:flex-col md:flex-row sm:flex-row">
+    <div className="flex flex-col lg:flex-row gap-8 max-w-7xl mx-auto">
+      <nav className="flex flex-wrap gap-2 lg:flex-col lg:min-w-[200px]">
+        <button
+          className={`transition duration-300 ease-in-out hover:bg-gray-700 px-4 py-2 rounded text-sm whitespace-nowrap ${
+            selectedGenre === null ? "bg-gray-700 text-white" : "text-gray-300"
+          }`}
+          onClick={() => setSelectedGenre(null)}
+        >
+          All Genres
+        </button>
         {genres?.map((g) => (
           <button
             key={g._id}
-            className={`transition duration-300 ease-in-out hover:bg-gray-200 block p-2 rounded mb-[1rem] text-lg ${
-              selectedGenre === g._id ? "bg-gray-200" : ""
+            className={`transition duration-300 ease-in-out hover:bg-gray-700 px-4 py-2 rounded text-sm whitespace-nowrap ${
+              selectedGenre === g._id ? "bg-gray-700 text-white" : "text-gray-300"
             }`}
             onClick={() => handleGenreClick(g._id)}
           >
@@ -40,19 +58,19 @@ const MoviesContainerPage = () => {
         ))}
       </nav>
 
-      <section className="flex flex-col justify-center items-center w-full lg:w-auto">
-        <div className="w-full lg:w-[100rem] mb-8 ">
-          <h1 className="mb-5">Choose For You</h1>
+      <section className="flex-1 min-w-0">
+        <div className="w-full mb-8">
+          <h1 className="mb-5 text-xl font-semibold">Choose For You</h1>
           <SliderUtil data={randomMovies} />
         </div>
 
-        <div className="w-full lg:w-[100rem] mb-8">
-          <h1 className="mb-5">Top Movies</h1>
+        <div className="w-full mb-8">
+          <h1 className="mb-5 text-xl font-semibold">Top Movies</h1>
           <SliderUtil data={topMovies} />
         </div>
 
-        <div className="w-full lg:w-[100rem] mb-8">
-          <h1 className="mb-5">Choose Movie</h1>
+        <div className="w-full mb-8">
+          <h1 className="mb-5 text-xl font-semibold">Choose Movie</h1>
           <SliderUtil data={filteredMovies} />
         </div>
       </section>

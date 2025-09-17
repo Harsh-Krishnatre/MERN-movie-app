@@ -56,7 +56,7 @@ const removeGenre = asyncHandler(async (req, res) => {
     res.json(removed);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Interval server error" });
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
