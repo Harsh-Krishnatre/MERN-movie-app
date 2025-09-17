@@ -21,9 +21,11 @@ services:
       - key: FRONTEND_URL
         sync: false
 
-  # Frontend Service
-  - type: static
+  # Frontend Service (Static Site)
+  - type: web
     name: mern-movies-frontend
+    env: static
+    plan: free
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: frontend/dist
     envVars:
